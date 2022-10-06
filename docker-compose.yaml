@@ -1,0 +1,31 @@
+version: '3'
+services:
+  scheduler:
+    image: odelucca/mo837-dask
+    env_file: .env
+    command: "dask-scheduler --port ${SCHEDULER_PORT}"
+    networks:
+      - dask
+
+  worker:
+    image: odelucca/mo837-dask
+    env_file: .env
+    command: "dask-worker scheduler:${SCHEDULER_PORT}"
+    networks:
+      - dask
+    depends_on:
+      - scheduler
+
+  client:
+    image: odelucca/mo837-dask
+    env_file: .env
+    command: "python3 -u /app.py --scheduler_url scheduler:${SCHEDULER_PORT}"
+    networks:
+      - dask
+    depends_on:
+      - scheduler
+      - worker
+
+networks:
+  dask:
+
